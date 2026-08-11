@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeTracker V4.3 - System Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ==================== VARIABLES Y RESET ==================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-base: #080a11;
+            --bg-panel: rgba(15, 19, 31, 0.7);
+            --bg-panel-hover: rgba(22, 28, 45, 0.85);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(0, 240, 255, 0.3);
+            
+            --neon-blue: #00f0ff;
+            --neon-green: #00ffa3;
+            --neon-purple: #9d00ff;
+            --neon-red: #ff2a5f;
+            --neon-orange: #ff9d00;
+            
+            --text-primary: #ffffff;
+            --text-secondary: #8b95a5;
+            
+            --glow-blue: 0 0 15px rgba(0, 240, 255, 0.25);
+            --glow-green: 0 0 15px rgba(0, 255, 163, 0.25);
+            --glow-red: 0 0 15px rgba(255, 42, 95, 0.25);
+        }
+
+        html { scroll-behavior: smooth; }
+        body {
+            background-color: var(--bg-base);
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(0, 240, 255, 0.02) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(157, 0, 255, 0.02) 0%, transparent 40%);
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            padding: 24px;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-base); }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--neon-blue); }
+
+        .container { max-width: 1750px; margin: 0 auto; animation: fadeIn 0.5s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ==================== HEADER & BOTONES ==================== */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);
+        }
+        header h1 {
+            font-size: 2em; font-weight: 700;
+            background: linear-gradient(to right, var(--neon-blue), var(--neon-green));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px; display: flex; align-items: center; gap: 12px;
+        }
+        header .controls { display: flex; gap: 12px; }
+
+        .tech-btn {
+            padding: 9px 16px; background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color); border-radius: 8px;
+            color: var(--text-primary); font-family: 'Outfit', sans-serif;
+            font-weight: 500; font-size: 0.88em; cursor: pointer;
+            transition: all 0.25s ease; display: inline-flex;
+            align-items: center; justify-content: center; gap: 8px;
+        }
+        .tech-btn:hover { border-color: var(--neon-blue); box-shadow: var(--glow-blue); transform: translateY(-1px); }
+        .tech-btn.primary { background: rgba(0, 240, 255, 0.08); border-color: rgba(0, 240, 255, 0.35); color: var(--neon-blue); }
+        .tech-btn.success { background: rgba(0, 255, 163, 0.08); border-color: rgba(0, 255, 163, 0.35); color: var(--neon-green); }
+        .tech-btn.danger { background: rgba(255, 42, 95, 0.08); border-color: rgba(255, 42, 95, 0.35); color: var(--neon-red); }
+        .tech-btn.danger:hover { box-shadow: var(--glow-red); border-color: var(--neon-red); }
+
+        /* ==================== LAYOUT & MÓDULOS ==================== */
+        .main-wrapper { display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px; margin-bottom: 24px; }
+        @media (max-width: 1200px) { .main-wrapper { grid-template-columns: 1fr; } }
+        .left-col, .right-col { display: flex; flex-direction: column; gap: 20px; }
+
+        .module {
+            background: var(--bg-panel); border: 1px solid var(--border-color);
+            border-radius: 14px; padding: 20px; backdrop-filter: blur(12px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.25); display: flex; flex-direction: column;
+        }
+        .module h2 {
+            font-size: 1.2em; font-weight: 600; margin-bottom: 16px; color: var(--text-primary);
+            display: flex; align-items: center; gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 10px;
+        }
+        .module-icon {
+            font-size: 1em; background: rgba(255,255,255,0.04);
+            padding: 6px; border-radius: 6px; border: 1px solid var(--border-color);
+        }
+
+        /* ==================== CALENDARIO ==================== */
+        .calendar-controls { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+        .tech-select {
+            padding: 8px 14px; background: rgba(0,0,0,0.3); border: 1px solid var(--border-color);
+            border-radius: 6px; color: var(--text-primary); font-family: 'Outfit'; outline: none; cursor: pointer;
+        }
+        .tech-select:focus { border-color: var(--neon-purple); }
+
+        .calendar-wrapper { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border-color); background: rgba(0,0,0,0.25); }
+        .calendar-grid {
+            display: grid; grid-template-columns: 60px repeat(7, minmax(85px, 1fr));
+            gap: 1px; background: var(--border-color); position: relative;
+        }
+        .time-indicator {
+            position: absolute; left: 60px; right: 0; height: 2px;
+            background: var(--neon-red); z-index: 10; box-shadow: 0 0 8px var(--neon-red);
+            display: none; pointer-events: none;
+        }
+        .time-indicator.active { display: block; }
+        .calendar-header, .day-header {
+            background: rgba(255,255,255,0.02); color: var(--text-secondary); padding: 10px 6px;
+            text-align: center; font-weight: 500; font-size: 0.82em; text-transform: uppercase;
+        }
+        .time-label {
+            background: rgba(255,255,255,0.02); padding: 8px 4px; text-align: center; font-size: 0.75em;
+            color: var(--text-secondary); font-family: monospace; display: flex; justify-content: center;
+        }
+        .calendar-cell { background: var(--bg-panel); min-height: 55px; padding: 3px; position: relative; transition: all 0.2s ease; }
+        .calendar-cell:hover { background: rgba(0, 240, 255, 0.04); }
+        .calendar-cell.drag-over { background: rgba(0, 255, 163, 0.08); box-shadow: inset 0 0 0 1px var(--neon-green); }
+
+        .activity-block {
+            color: #fff; padding: 4px 6px; border-radius: 5px; margin: 2px 0; font-size: 0.75em;
+            font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            cursor: grab; transition: all 0.2s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .activity-block:active { cursor: grabbing; transform: scale(0.98); }
+        .activity-block:hover { filter: brightness(1.1); }
+        .activity-block.variable { background: linear-gradient(135deg, rgba(0,255,163,0.18), rgba(0,180,110,0.35)); border-color: rgba(0,255,163,0.3); color: var(--neon-green); }
+        .activity-block.fixed { background: linear-gradient(135deg, rgba(255,157,0,0.18), rgba(200,100,0,0.35)); border-color: rgba(255,157,0,0.3); color: var(--neon-orange); }
+        .activity-block.break { background: linear-gradient(135deg, rgba(0,240,255,0.12), rgba(0,150,200,0.25)); border-color: rgba(0,240,255,0.25); color: var(--neon-blue); }
+
+        .activity-blocks-section { margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color); }
+        .activity-blocks-section h3 { font-size: 0.8em; color: var(--text-secondary); text-transform: uppercase; }
+        .draggable-blocks { display: flex; flex-wrap: wrap; gap: 8px; }
+        .draggable-block {
+            padding: 6px 14px; border-radius: 6px; cursor: grab; font-size: 0.82em; font-weight: 500;
+            text-align: center; border: 1px solid rgba(255,255,255,0.1); transition: all 0.2s ease;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .draggable-block:hover { transform: translateY(-1px); }
+        .draggable-block.variable { background: rgba(0,255,163,0.08); color: var(--neon-green); border-color: rgba(0,255,163,0.25); }
+        .draggable-block.fixed { background: rgba(255,157,0,0.08); color: var(--neon-orange); border-color: rgba(255,157,0,0.25); }
+        .draggable-block.break { background: rgba(0,240,255,0.08); color: var(--neon-blue); border-color: rgba(0,240,255,0.25); }
+
+        .node-actions { display: inline-flex; gap: 4px; margin-left: 6px; opacity: 0.6; transition: opacity 0.2s; }
+        .draggable-block:hover .node-actions { opacity: 1; }
+        .node-action-btn { background: none; border: none; cursor: pointer; font-size: 0.8em; padding: 0 2px; color: inherit; }
+
+        /* ==================== TAREAS Y KANBAN ==================== */
+        .view-toggle { display: inline-flex; background: rgba(0,0,0,0.3); border-radius: 6px; padding: 3px; margin-bottom: 14px; border: 1px solid var(--border-color); }
+        .view-toggle button {
+            flex: 1; padding: 5px 14px; background: transparent; border: none; border-radius: 5px;
+            color: var(--text-secondary); cursor: pointer; font-size: 0.82em; font-weight: 500; transition: all 0.25s; font-family: 'Outfit';
+        }
+        .view-toggle button.active { background: var(--bg-panel-hover); color: var(--text-primary); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+        .tech-input {
+            width: 100%; padding: 10px 14px; background: rgba(0,0,0,0.25); border: 1px solid var(--border-color);
+            border-radius: 6px; color: var(--text-primary); font-family: 'Outfit'; font-size: 0.9em; transition: border 0.25s ease;
+        }
+        .tech-input:focus { outline: none; border-color: var(--neon-blue); box-shadow: inset 0 0 0 1px rgba(0, 240, 255, 0.2); }
+        .tasks-form { display: flex; gap: 8px; margin-bottom: 14px; }
+        .tasks-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; max-height: 260px; padding-right: 4px; }
+        .task-item { display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); padding: 10px 12px; border-radius: 6px; }
+        .custom-checkbox { display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none; flex: 1; }
+        .custom-checkbox input { display: none; }
+        .checkmark { width: 18px; height: 18px; border: 1.5px solid var(--text-secondary); border-radius: 4px; display: flex; align-items: center; justify-content: center; }
+        .custom-checkbox input:checked + .checkmark { background: var(--neon-green); border-color: var(--neon-green); box-shadow: var(--glow-green); }
+        .custom-checkbox input:checked + .checkmark::after { content: "✓"; color: var(--bg-base); font-size: 12px; font-weight: bold; }
+        .custom-checkbox input:checked ~ .task-text { color: var(--text-secondary); text-decoration: line-through; opacity: 0.6; }
+        
+        .icon-btn { background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1em; padding: 3px; border-radius: 4px; transition: all 0.2s; }
+        .icon-btn.danger:hover { color: var(--neon-red); background: rgba(255,42,95,0.1); }
+
+        .kanban-board { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .kanban-column { background: rgba(0,0,0,0.25); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px; min-height: 200px; display: flex; flex-direction: column; transition: all 0.2s ease;}
+        .kanban-column.drag-over { background: rgba(0, 240, 255, 0.05); border-color: rgba(0, 240, 255, 0.5); box-shadow: inset 0 0 10px rgba(0, 240, 255, 0.1); }
+        .kanban-column h3 { font-size: 0.72em; color: var(--text-secondary); text-transform: uppercase; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 6px; margin-bottom: 8px;}
+        .kanban-tasks { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .kanban-task { background: var(--bg-panel); border: 1px solid rgba(0,240,255,0.15); padding: 8px; border-radius: 5px; font-size: 0.8em; cursor: grab; display: flex; justify-content: space-between; align-items: center; transition: transform 0.2s; }
+        .kanban-task:active { cursor: grabbing; }
+        .kanban-task:hover { transform: translateY(-1px); border-color: var(--neon-blue); }
+
+        /* ==================== RACHAS Y LIBROS ==================== */
+        .habits-list { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; overflow-y: auto; max-height: 260px; }
+        .habit-card { background: rgba(255,255,255,0.02); border: 1px solid var(--border-color); border-radius: 10px; padding: 12px; }
+        .habit-info { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+        .habit-icon { font-size: 1.2em; background: rgba(255,157,0,0.08); padding: 6px; border-radius: 8px; border: 1px solid rgba(255,157,0,0.18); }
+        .habit-details { flex: 1; }
+        .habit-name { display: block; font-weight: 600; font-size: 0.95em; margin-bottom: 1px; }
+        .habit-meta { font-size: 0.78em; color: var(--neon-orange); font-weight: 500; }
+        .habit-card .tech-btn { width: 100%; padding: 7px; font-size: 0.82em; }
+
+        .books-section { width: 100%; }
+        .books-container { display: flex; flex-direction: column; gap: 16px; margin-top: 16px; width: 100%; }
+        .book-card { background: rgba(12, 16, 26, 0.7); border: 1px solid var(--border-color); border-left: 3px solid var(--neon-green); border-radius: 10px; padding: 18px 24px; display: flex; flex-direction: column; gap: 12px; transition: all 0.25s ease; }
+        .book-card:hover { border-color: rgba(0, 240, 255, 0.3); border-left-color: var(--neon-green); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); }
+        .book-row-1 { display: flex; justify-content: space-between; align-items: center; }
+        .book-title { font-size: 1.05em; font-weight: 600; color: var(--text-primary); }
+        .book-row-2 { font-size: 0.88em; color: var(--text-secondary); }
+        .pages-highlight { color: var(--neon-green); font-weight: 600; }
+        .book-row-3 { display: flex; align-items: center; gap: 16px; width: 100%; }
+        .progress-container-full { flex: 1; height: 32px; background: rgba(0, 0, 0, 0.4); border: 1px solid var(--border-color); border-radius: 6px; position: relative; overflow: hidden; display: flex; align-items: center; padding-left: 14px; }
+        .progress-fill-bar { position: absolute; left: 0; top: 0; bottom: 0; background: linear-gradient(90deg, rgba(0, 240, 255, 0.4), rgba(0, 255, 163, 0.5)); transition: width 0.4s ease; z-index: 1; }
+        .progress-text-label { position: relative; z-index: 2; font-weight: 700; font-size: 0.88em; }
+        .pags-input { width: 90px; padding: 6px 10px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-family: 'Outfit'; font-size: 0.85em; text-align: center; }
+        .book-row-4 { display: flex; justify-content: space-between; align-items: center; margin-top: 2px; }
+        .eta-badge { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-color); padding: 4px 10px; border-radius: 4px; font-size: 0.78em; color: var(--text-secondary); }
+        .sync-btn { padding: 6px 20px; background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.4); border-radius: 6px; color: var(--neon-blue); font-family: 'Outfit'; font-size: 0.85em; cursor: pointer; }
+
+        /* ==================== MODALES ==================== */
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(4px); z-index: 1000;
+            align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s;
+        }
+        .modal.active { display: flex; opacity: 1; }
+        .modal-content {
+            background: var(--bg-base); border: 1px solid var(--border-highlight); border-radius: 14px;
+            padding: 28px; width: 100%; max-width: 420px; box-shadow: 0 15px 40px rgba(0,0,0,0.5);
+            transform: translateY(15px); transition: transform 0.25s;
+        }
+        .modal.active .modal-content { transform: translateY(0); }
+        .modal-content h3 { color: var(--neon-blue); margin-bottom: 20px; font-size: 1.3em; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; margin-bottom: 6px; color: var(--text-secondary); font-size: 0.88em; }
+        .form-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .form-buttons button { flex: 1; }
+        .empty-state { text-align: center; padding: 30px; color: var(--text-secondary); background: rgba(255,255,255,0.015); border: 1px dashed var(--border-color); border-radius: 10px; font-size: 0.9em; width: 100%; }
+
+        /* ==================== SPRINT DE EXÁMENES ==================== */
+        .exam-card {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(157, 0, 255, 0.05));
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 12px;
+            padding: 18px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        .exam-card:hover { border-color: var(--neon-blue); box-shadow: var(--glow-blue); transform: translateY(-2px); }
+        .exam-card.risk-green { border-color: rgba(0, 255, 163, 0.3); }
+        .exam-card.risk-green:hover { box-shadow: var(--glow-green); border-color: var(--neon-green); }
+        .exam-card.risk-yellow { border-color: rgba(255, 237, 74, 0.3); }
+        .exam-card.risk-red { border-color: rgba(255, 42, 95, 0.3); }
+        .exam-card.risk-red:hover { box-shadow: var(--glow-red); border-color: var(--neon-red); }
+        .exam-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 14px; }
+        .exam-title { display: flex; flex-direction: column; gap: 4px; }
+        .exam-subject { font-size: 1.1em; font-weight: 600; color: var(--text-primary); }
+        .exam-type { font-size: 0.8em; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+        .exam-indicator { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .risk-dot { width: 16px; height: 16px; border-radius: 50%; box-shadow: 0 0 12px currentColor; animation: pulse 2s infinite; }
+        .risk-dot.green { background: var(--neon-green); color: var(--neon-green); }
+        .risk-dot.yellow { background: #ffed4e; color: #ffed4e; }
+        .risk-dot.red { background: var(--neon-red); color: var(--neon-red); }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+        .exam-countdown { display: flex; gap: 8px; font-family: 'Courier New', monospace; font-weight: 600; font-size: 0.9em; color: var(--neon-blue); text-shadow: 0 0 10px rgba(0, 240, 255, 0.5); margin-bottom: 14px; }
+        .exam-countdown-unit { display: flex; flex-direction: column; align-items: center; padding: 4px 8px; background: rgba(0, 240, 255, 0.08); border: 1px solid rgba(0, 240, 255, 0.2); border-radius: 4px; }
+        .countdown-value { font-size: 1.1em; color: var(--neon-blue); }
+        .countdown-label { font-size: 0.65em; color: var(--text-secondary); text-transform: uppercase; }
+        .exam-progress { margin: 14px 0; padding: 14px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; }
+        .progress-label { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.85em; }
+        .progress-label-text { font-weight: 600; color: var(--text-primary); }
+        .progress-percentage { font-weight: 600; color: var(--neon-green); }
+        .progress-bar { width: 100%; height: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 4px; overflow: hidden; border: 1px solid var(--border-color); }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, var(--neon-green), var(--neon-blue)); transition: width 0.4s ease; }
+        .syllabus-matrix { background: rgba(0, 0, 0, 0.3); border-radius: 10px; padding: 12px; margin-top: 12px; }
+        .syllabus-title { font-size: 0.8em; font-weight: 600; color: var(--neon-blue); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; display: flex; justify-content: space-between; align-items: center; }
+        .topic-row { display: grid; grid-template-columns: 1fr 60px 60px 60px 30px; gap: 8px; padding: 8px; margin-bottom: 6px; background: rgba(255, 255, 255, 0.02); border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.03); transition: all 0.2s ease; align-items: center; }
+        .topic-row:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.08); }
+        
+        /* CORREGIDO: Input oscuro legible */
+        .topic-name {
+            width: 100%;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-family: 'Outfit', sans-serif;
+            font-size: 0.88em;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+        .topic-name:focus {
+            border-color: var(--neon-blue);
+            box-shadow: inset 0 0 0 1px rgba(0, 240, 255, 0.2);
+            background: rgba(0, 0, 0, 0.5);
+        }
+        .topic-name::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .topic-status-btn { padding: 6px 8px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; background: rgba(255, 255, 255, 0.02); color: var(--text-secondary); font-size: 0.75em; font-weight: 600; cursor: pointer; transition: all 0.2s ease; text-transform: uppercase; }
+        .topic-status-btn:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.15); }
+        .topic-status-btn.unreview { border-color: rgba(255, 42, 95, 0.3); color: rgba(255, 42, 95, 0.8); }
+        .topic-status-btn.unreview:hover { background: rgba(255, 42, 95, 0.1); border-color: var(--neon-red); color: var(--neon-red); }
+        .topic-status-btn.practice { border-color: rgba(255, 237, 74, 0.3); color: rgba(255, 237, 74, 0.8); }
+        .topic-status-btn.practice:hover { background: rgba(255, 237, 74, 0.1); border-color: #ffed4e; color: #ffed4e; }
+        .topic-status-btn.mastered { border-color: rgba(0, 255, 163, 0.3); color: var(--neon-green); }
+        .topic-status-btn.mastered:hover { background: rgba(0, 255, 163, 0.1); border-color: var(--neon-green); box-shadow: var(--glow-green); }
+        .exam-tasks { margin-top: 12px; }
+        .task-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+        .task-input-row input { flex: 1; padding: 8px 12px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-primary); font-family: 'Outfit', sans-serif; font-size: 0.85em; transition: all 0.2s ease; }
+        .task-input-row input:focus { outline: none; border-color: var(--neon-blue); box-shadow: inset 0 0 0 1px rgba(0, 240, 255, 0.2); }
+        .task-input-row input::placeholder { color: var(--text-secondary); }
+        .task-list { display: flex; flex-direction: column; gap: 6px; max-height: 150px; overflow-y: auto; }
+        .task-item-exam { display: flex; align-items: center; gap: 10px; padding: 8px; background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.03); border-radius: 6px; transition: all 0.2s ease; font-size: 0.85em; }
+        .task-item-exam:hover { background: rgba(255, 255, 255, 0.04); border-color: rgba(255, 255, 255, 0.08); }
+        .task-item-exam.completed { opacity: 0.5; }
+        .task-item-exam.completed .task-text { text-decoration: line-through; color: var(--text-secondary); }
+        .task-checkbox { width: 16px; height: 16px; cursor: pointer; accent-color: var(--neon-green); }
+        .task-text { flex: 1; color: var(--text-primary); }
+        .task-delete { padding: 4px 8px; background: rgba(255, 42, 95, 0.1); border: 1px solid rgba(255, 42, 95, 0.2); border-radius: 4px; color: var(--neon-red); font-size: 0.7em; cursor: pointer; transition: all 0.2s ease; }
+        .task-delete:hover { background: rgba(255, 42, 95, 0.2); border-color: var(--neon-red); box-shadow: var(--glow-red); }
+        .spaced-repetition { margin-top: 12px; padding: 10px; background: rgba(0, 0, 0, 0.3); border-radius: 8px; border-left: 3px solid var(--neon-purple); }
+        .repetition-title { font-size: 0.75em; font-weight: 600; color: var(--neon-purple); text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .repetition-schedule { display: flex; gap: 6px; flex-wrap: wrap; }
+        .repetition-marker { padding: 5px 10px; background: rgba(157, 0, 255, 0.1); border: 1px solid rgba(157, 0, 255, 0.3); border-radius: 4px; font-size: 0.7em; color: var(--neon-purple); font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .repetition-marker:hover { background: rgba(157, 0, 255, 0.15); border-color: var(--neon-purple); }
+        .repetition-marker.done { background: rgba(0, 255, 163, 0.1); border-color: rgba(0, 255, 163, 0.3); color: var(--neon-green); text-decoration: line-through; }
+        .repetition-marker.pending { background: rgba(255, 42, 95, 0.1); border-color: rgba(255, 42, 95, 0.3); color: var(--neon-red); }
+        .exams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 20px; margin-top: 16px; }
+        @media (max-width: 1000px) { .exams-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- HEADER -->
+        <header>
+            <h1><span class="module-icon">⚡</span> LifeTracker V4.3</h1>
+            <div class="controls">
+                <button id="exportBtn" class="tech-btn" title="Exportar backup">💾 Exportar</button>
+                <button id="importBtn" class="tech-btn" title="Importar backup">📂 Importar</button>
+                <input type="file" id="importFile" style="display: none;" accept=".json">
+            </div>
+        </header>
+
+        <!-- MAIN WRAPPER -->
+        <div class="main-wrapper">
+            <!-- COLUMNA IZQUIERDA: CALENDARIO -->
+            <div class="left-col">
+                <div class="module">
+                    <h2><span class="module-icon">📅</span> Cronograma Base (08:00 - 23:00)</h2>
+                    
+                    <div class="calendar-controls">
+                        <select id="templateSelect" class="tech-select"><option value="">Cargar template...</option></select>
+                        <button id="loadTemplateBtn" class="tech-btn">Cargar</button>
+                        <button id="saveTemplateBtn" class="tech-btn primary">Guardar Plantilla</button>
+                    </div>
+
+                    <div class="calendar-wrapper">
+                        <div class="calendar-grid" id="calendarGrid">
+                            <div class="time-indicator" id="timeIndicator"></div>
+                        </div>
+                    </div>
+
+                    <div class="activity-blocks-section">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <h3 style="margin: 0;">📦 Nodos Disponibles</h3>
+                            <button id="addNodeBtn" class="tech-btn primary" style="padding: 4px 10px; font-size: 0.8em;">+ Agregar</button>
+                        </div>
+                        <div class="draggable-blocks" id="draggableBlocks"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA: TAREAS + RACHAS -->
+            <div class="right-col">
+                <div class="module tasks-module">
+                    <h2><span class="module-icon">✓</span> Tareas Activas</h2>
+                    <div class="view-toggle">
+                        <button id="listViewBtn" class="active">📋 Lista</button>
+                        <button id="kanbanViewBtn">📊 Kanban</button>
+                    </div>
+
+                    <div id="listView">
+                        <form class="tasks-form" id="tasksForm">
+                            <input type="text" id="taskInput" class="tech-input" placeholder="Ingresar nueva tarea..." maxlength="60" required>
+                            <button type="submit" class="tech-btn primary">+</button>
+                        </form>
+                        <div class="tasks-list" id="tasksList"></div>
+                    </div>
+
+                    <div id="kanbanView" style="display: none;">
+                        <div class="kanban-board" id="kanbanBoard"></div>
+                    </div>
+                </div>
+
+                <div class="module habits-module">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px; margin-bottom: 16px;">
+                        <h2 style="border: none; margin: 0; padding: 0;"><span class="module-icon">🔥</span> Rachas y Hábitos</h2>
+                        <button id="addHabitBtn" class="tech-btn primary" style="padding: 5px 10px; font-size: 0.8em;">+ Nuevo Hábito</button>
+                    </div>
+                    <div class="habits-list" id="habitsContainer"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: SPRINT DE EXÁMENES -->
+        <div class="module" id="examModule" style="margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="border: none; margin: 0; padding: 0;"><span class="module-icon">🎯</span> Sprint de Exámenes</h2>
+                <button class="tech-btn success" onclick="openAddExamModal()">+ Nuevo Examen</button>
+            </div>
+            <div class="exams-grid" id="examsGrid"></div>
+        </div>
+
+        <!-- SECCIÓN INFERIOR: BIBLIOTECA -->
+        <div class="module books-section">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2 style="border: none; margin: 0; padding: 0;"><span class="module-icon">📖</span> Biblioteca de Lectura</h2>
+                <button id="addBookBtn" class="tech-btn success">+ Agregar Libro</button>
+            </div>
+            <div class="books-container" id="booksContainer"></div>
+        </div>
+    </div>
+
+    <!-- UI MODALS (Alerts & Confirms) -->
+    <div class="modal" id="customAlertModal" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 350px; text-align: center;">
+            <h3 id="alertTitle">Aviso</h3>
+            <p id="alertMessage" style="color: var(--text-secondary); margin-bottom: 20px;"></p>
+            <button class="tech-btn primary" style="width: 100%;" onclick="closeAlert()">Entendido</button>
+        </div>
+    </div>
+
+    <div class="modal" id="customConfirmModal" style="z-index: 2000;">
+        <div class="modal-content" style="max-width: 350px; text-align: center;">
+            <h3 id="confirmTitle">Confirmar Acción</h3>
+            <p id="confirmMessage" style="color: var(--text-secondary); margin-bottom: 20px;"></p>
+            <div class="form-buttons">
+                <button class="tech-btn" onclick="closeConfirm(false)">Cancelar</button>
+                <button class="tech-btn danger" onclick="closeConfirm(true)">Confirmar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL AGREGAR / EDITAR EXAMEN -->
+    <div class="modal" id="addExamModal">
+        <div class="modal-content">
+            <h3 id="examModalTitle">Crear Nuevo Examen</h3>
+            <form id="examForm">
+                <input type="hidden" id="editExamId">
+                <div class="form-group">
+                    <label>Materia</label>
+                    <input type="text" id="examSubject" class="tech-input" placeholder="ej: Bases de Datos" required>
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Evaluación</label>
+                    <select id="examType" class="tech-select" required>
+                        <option value="">Seleccionar...</option>
+                        <option value="1° Parcial">1° Parcial</option>
+                        <option value="2° Parcial">2° Parcial</option>
+                        <option value="Final">Final</option>
+                        <option value="TP Integrador">TP Integrador</option>
+                        <option value="Quiz">Quiz</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Fecha del Examen</label>
+                    <input type="date" id="examDate" class="tech-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Hora</label>
+                    <input type="time" id="examTime" class="tech-input" required>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="tech-btn" onclick="closeAddExamModal()">Cancelar</button>
+                    <button type="submit" class="tech-btn success">Guardar Examen</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALES DE FORMULARIO -->
+    <div class="modal" id="addNodeModal">
+        <div class="modal-content">
+            <h3 id="nodeModalTitle">Nuevo Nodo</h3>
+            <form id="addNodeForm">
+                <input type="hidden" id="editNodeIndex" value="">
+                <div class="form-group">
+                    <label>Nombre de la actividad</label>
+                    <input type="text" id="nodeName" class="tech-input" placeholder="ej: Práctica SQL" maxlength="30" required>
+                </div>
+                <div class="form-group">
+                    <label>Color (Tema Neón)</label>
+                    <input type="color" id="nodeColor" value="#9d00ff" style="width:100%; height:40px; background:none; border:none; cursor:pointer;">
+                </div>
+                <div class="form-buttons">
+                    <button type="button" class="tech-btn" id="closeNodeModal">Cancelar</button>
+                    <button type="submit" class="tech-btn primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="addBookModal">
+        <div class="modal-content">
+            <h3>Inicializar Libro</h3>
+            <form id="addBookForm">
+                <div class="form-group"><label>Título del documento</label><input type="text" id="bookTitle" class="tech-input" required></div>
+                <div class="form-group"><label>Páginas totales</label><input type="number" id="bookPages" class="tech-input" min="1" required></div>
+                <div class="form-group"><label>Progreso inicial (Páginas)</label><input type="number" id="bookCurrentPages" class="tech-input" value="0" min="0"></div>
+                <div class="form-buttons"><button type="button" class="tech-btn" id="closeBookModal">Cancelar</button><button type="submit" class="tech-btn success">Registrar</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="addHabitModal">
+        <div class="modal-content">
+            <h3>Configurar Hábito</h3>
+            <form id="addHabitForm">
+                <div class="form-group"><label>Identificador del hábito</label><input type="text" id="habitName" class="tech-input" required></div>
+                <div class="form-group"><label>Ciclo (minutos/día)</label><input type="number" id="habitMinutes" class="tech-input" value="30" min="1" required></div>
+                <div class="form-buttons"><button type="button" class="tech-btn" id="closeHabitModal">Cancelar</button><button type="submit" class="tech-btn primary">Activar</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="saveTemplateModal">
+        <div class="modal-content">
+            <h3>Guardar Plantilla de Sistema</h3>
+            <form id="saveTemplateForm">
+                <div class="form-group"><label>Nombre del patrón</label><input type="text" id="templateName" class="tech-input" required></div>
+                <div class="form-buttons"><button type="button" class="tech-btn" id="closeSaveModal">Cancelar</button><button type="submit" class="tech-btn primary">Guardar</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const state = {
+            activities: [], books: [], tasks: [], templates: {}, habits: [], customNodes: []
+        };
+
+        const days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+        const START_HOUR = 8; const END_HOUR = 23;
+        let draggedBlock = null; let draggedActivityId = null; let currentView = 'list';
+
+        // --- SISTEMA DE MODALES UI ---
+        let confirmCallback = null;
+        function showCustomAlert(msg, title = "Aviso") {
+            document.getElementById('alertTitle').textContent = title;
+            document.getElementById('alertMessage').textContent = msg;
+            document.getElementById('customAlertModal').classList.add('active');
+        }
+        function closeAlert() { document.getElementById('customAlertModal').classList.remove('active'); }
+
+        function showCustomConfirm(msg, callback, title = "Confirmar Acción") {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = msg;
+            confirmCallback = callback;
+            document.getElementById('customConfirmModal').classList.add('active');
+        }
+        function closeConfirm(result) {
+            document.getElementById('customConfirmModal').classList.remove('active');
+            if (result && confirmCallback) confirmCallback();
+            confirmCallback = null;
+        }
+
+        // --- STORAGE ---
+        function saveState() { localStorage.setItem('lifeTrackerState', JSON.stringify(state)); }
+        function loadState() {
+            const saved = localStorage.getItem('lifeTrackerState');
+            if (saved) {
+                const loaded = JSON.parse(saved);
+                Object.assign(state, loaded);
+                if (!Array.isArray(state.habits)) state.habits = [];
+                if (!Array.isArray(state.customNodes)) state.customNodes = [];
+            }
+        }
+
+        function exportBackup() {
+            const dataStr = JSON.stringify(state, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a'); link.href = url;
+            link.download = `lifetracker-backup-${new Date().toISOString().split('T')[0]}.json`;
+            link.click(); URL.revokeObjectURL(url);
+        }
+
+        function importBackup(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    Object.assign(state, JSON.parse(e.target.result));
+                    saveState(); location.reload();
+                } catch (err) { showCustomAlert('Error al importar archivo corrupto.'); }
+            };
+            reader.readAsText(file);
+        }
+
+        // --- CALENDARIO Y CRONOGRAMA ---
+        function updateTimeIndicator() {
+            const now = new Date(); const currentHour = now.getHours(); const currentMinute = now.getMinutes();
+            if (currentHour >= START_HOUR && currentHour < END_HOUR) {
+                const indicator = document.getElementById('timeIndicator');
+                const hoursFromStart = currentHour - START_HOUR + currentMinute / 60;
+                const percentageFromTop = (hoursFromStart / (END_HOUR - START_HOUR)) * 100;
+                indicator.style.top = `calc(35px + ${percentageFromTop}% * (100% - 35px) / 100)`;
+                indicator.classList.add('active');
+            }
+        }
+        setInterval(updateTimeIndicator, 60000);
+
+        function initCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            calendarGrid.innerHTML = '<div class="time-indicator" id="timeIndicator"></div><div class="calendar-header">⏱️</div>';
+            days.forEach(day => { calendarGrid.innerHTML += `<div class="day-header">${day}</div>`; });
+
+            for (let hour = START_HOUR; hour < END_HOUR; hour++) {
+                const timeLabel = document.createElement('div');
+                timeLabel.className = 'time-label';
+                timeLabel.textContent = `${String(hour).padStart(2, '0')}:00`;
+                calendarGrid.appendChild(timeLabel);
+
+                for (let day = 0; day < 7; day++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'calendar-cell'; cell.dataset.day = day; cell.dataset.hour = hour;
+                    
+                    state.activities.filter(a => a.day === day && a.hour === hour).forEach(act => {
+                        cell.appendChild(createActivityBlock(act));
+                    });
+
+                    cell.addEventListener('dragover', (e) => { e.preventDefault(); cell.classList.add('drag-over'); });
+                    cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
+                    cell.addEventListener('drop', (e) => {
+                        e.preventDefault(); cell.classList.remove('drag-over');
+                        const nDay = parseInt(cell.dataset.day); const nHour = parseInt(cell.dataset.hour);
+                        if (draggedActivityId) { moveActivity(draggedActivityId, nDay, nHour); draggedActivityId = null; }
+                        else if (draggedBlock) {
+                            try {
+                                const data = JSON.parse(draggedBlock);
+                                addActivityToSchedule(data.name, data.type, data.color, nDay, nHour);
+                            } catch { addActivityToSchedule(draggedBlock, 'variable', null, nDay, nHour); }
+                        }
+                    });
+                    calendarGrid.appendChild(cell);
+                }
+            }
+            updateTimeIndicator();
+        }
+
+        function createActivityBlock(activity) {
+            const block = document.createElement('div');
+            block.className = `activity-block ${activity.type || 'custom'}`;
+            if (activity.color) {
+                block.style.background = `linear-gradient(135deg, ${activity.color}30, ${activity.color}50)`;
+                block.style.borderColor = `${activity.color}80`;
+                block.style.color = activity.color;
+            }
+            block.textContent = activity.name; block.draggable = true;
+
+            block.addEventListener('dragstart', (e) => { draggedActivityId = activity.id; e.dataTransfer.effectAllowed = 'move'; });
+            block.addEventListener('dragend', () => draggedActivityId = null);
+            block.addEventListener('click', (e) => {
+                e.stopPropagation();
+                showCustomConfirm(`¿Eliminar nodo: "${activity.name}"?`, () => {
+                    state.activities = state.activities.filter(a => a.id !== activity.id);
+                    saveState(); initCalendar();
+                });
+            });
+            return block;
+        }
+
+        // --- LÓGICA DE FUSIÓN (MERGE) ---
+        function attemptMerge(name, type, color, day, hour) {
+            const existingHours = state.activities
+                .filter(a => a.name === name && a.day === day)
+                .map(a => a.hour)
+                .sort((a, b) => a - b);
+
+            if (existingHours.length <= 1) return;
+
+            const above = [...existingHours].reverse().find(h => h < hour);
+            if (above !== undefined) {
+                let canMerge = true;
+                for (let h = above + 1; h < hour; h++) {
+                    if (state.activities.some(a => a.day === day && a.hour === h)) {
+                        canMerge = false;
+                        break;
+                    }
+                }
+                if (canMerge) {
+                    for (let h = above + 1; h < hour; h++) {
+                        if (!state.activities.some(a => a.day === day && a.hour === h)) {
+                            state.activities.push({ id: Date.now() + Math.random(), name, day, hour: h, type, color });
+                        }
+                    }
+                }
+            }
+            
+            const below = existingHours.find(h => h > hour);
+            if (below !== undefined) {
+                let canMerge = true;
+                for (let h = hour + 1; h < below; h++) {
+                    if (state.activities.some(a => a.day === day && a.hour === h)) {
+                        canMerge = false;
+                        break;
+                    }
+                }
+                if (canMerge) {
+                    for (let h = hour + 1; h < below; h++) {
+                        if (!state.activities.some(a => a.day === day && a.hour === h)) {
+                            state.activities.push({ id: Date.now() + Math.random(), name, day, hour: h, type, color });
+                        }
+                    }
+                }
+            }
+        }
+
+        function addActivityToSchedule(name, type, color, day, hour) {
+            if (state.activities.filter(a => a.day === day && a.hour === hour).length >= 2) {
+                return showCustomAlert('Límite excedido (Max 2 por slot)');
+            }
+            state.activities.push({ id: Date.now() + Math.random(), name, day, hour, type, color });
+            attemptMerge(name, type, color, day, hour);
+            saveState(); 
+            initCalendar();
+        }
+
+        function moveActivity(id, newDay, newHour) {
+            const act = state.activities.find(a => a.id === id);
+            if (!act || (act.day === newDay && act.hour === newHour)) return;
+            if (state.activities.filter(a => a.day === newDay && a.hour === newHour && a.id !== id).length >= 2) return showCustomAlert('Slot saturado');
+            act.day = newDay; act.hour = newHour;
+            attemptMerge(act.name, act.type, act.color, newDay, newHour);
+            saveState(); initCalendar();
+        }
+
+        // --- NODOS (DRAGGABLES PERSONALIZADOS) ---
+        function initDraggableBlocks() {
+            const container = document.getElementById('draggableBlocks');
+            const defaultBlocks = [
+                { name: 'Estudio', type: 'variable', editable: false }, 
+                { name: 'Lectura', type: 'variable', editable: false },
+                { name: 'Clase', type: 'fixed', editable: false }, 
+                { name: 'Trabajo', type: 'fixed', editable: false },
+                { name: 'Deporte', type: 'break', editable: false }, 
+                { name: 'Descanso', type: 'break', editable: false }
+            ];
+            
+            let htmlContent = defaultBlocks.map(b => `
+                <div class="draggable-block ${b.type}" draggable="true" data-name="${b.name}" data-type="${b.type}" data-color="">${b.name}</div>
+            `).join('');
+
+            if (state.customNodes && state.customNodes.length > 0) {
+                htmlContent += state.customNodes.map((b, idx) => {
+                    let style = b.color ? `background: ${b.color}20; color: ${b.color}; border-color: ${b.color}50;` : '';
+                    return `
+                        <div class="draggable-block custom" style="${style}" draggable="true" data-name="${b.name}" data-type="custom" data-color="${b.color || ''}" data-index="${idx}">
+                            <span>${b.name}</span>
+                            <div class="node-actions">
+                                <button class="node-action-btn" onclick="openEditNodeModal(${idx})" title="Editar">✏️</button>
+                                <button class="node-action-btn" onclick="deleteCustomNode(${idx})" title="Eliminar">✕</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            container.innerHTML = htmlContent;
+
+            document.querySelectorAll('.draggable-block').forEach(block => {
+                block.addEventListener('dragstart', (e) => {
+                    if (e.target.closest('.node-actions')) return;
+                    draggedBlock = JSON.stringify({ name: block.dataset.name, type: block.dataset.type, color: block.dataset.color });
+                    draggedActivityId = null; e.dataTransfer.effectAllowed = 'move';
+                });
+                block.addEventListener('dragend', () => draggedBlock = null);
+            });
+        }
+
+        function openAddNodeModal() {
+            document.getElementById('nodeModalTitle').textContent = 'Nuevo Nodo';
+            document.getElementById('editNodeIndex').value = '';
+            document.getElementById('nodeName').value = '';
+            document.getElementById('nodeColor').value = '#9d00ff';
+            document.getElementById('addNodeModal').classList.add('active');
+        }
+
+        function openEditNodeModal(index) {
+            const node = state.customNodes[index];
+            document.getElementById('nodeModalTitle').textContent = 'Editar Nodo';
+            document.getElementById('editNodeIndex').value = index;
+            document.getElementById('nodeName').value = node.name;
+            document.getElementById('nodeColor').value = node.color || '#9d00ff';
+            document.getElementById('addNodeModal').classList.add('active');
+        }
+
+        function deleteCustomNode(index) {
+            showCustomConfirm('¿Eliminar este nodo personalizado?', () => {
+                state.customNodes.splice(index, 1);
+                saveState();
+                initDraggableBlocks();
+            });
+        }
+
+        document.getElementById('addNodeForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = document.getElementById('nodeName').value.trim();
+            const color = document.getElementById('nodeColor').value;
+            const editIndex = document.getElementById('editNodeIndex').value;
+
+            if (name) {
+                if (editIndex !== '') {
+                    state.customNodes[editIndex] = { name, color, type: 'custom' };
+                } else {
+                    state.customNodes.push({ name, color, type: 'custom' });
+                }
+                saveState(); 
+                initDraggableBlocks();
+                document.getElementById('addNodeModal').classList.remove('active');
+                document.getElementById('addNodeForm').reset();
+            }
+        });
+
+        // --- KANBAN & TAREAS ---
+        let draggedTaskId = null;
+        window.dragKanban = (e, id) => { draggedTaskId = id; e.dataTransfer.effectAllowed = 'move'; };
+        window.allowDropKanban = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
+        window.leaveDropKanban = (e) => { e.currentTarget.classList.remove('drag-over'); };
+        window.dropKanban = (e, status) => {
+            e.preventDefault(); e.currentTarget.classList.remove('drag-over');
+            if (draggedTaskId !== null) {
+                const task = state.tasks.find(t => t.id === draggedTaskId);
+                if (task) { task.status = status; saveState(); renderKanban(); renderTasks(); }
+                draggedTaskId = null;
+            }
+        };
+
+        function renderKanban() {
+            const board = document.getElementById('kanbanBoard');
+            const cols = ['backlog', 'todo', 'doing', 'done']; const labels = ['Backlog', 'To-Do', 'Doing', 'Done'];
+            board.innerHTML = cols.map((col, idx) => {
+                const tasks = state.tasks.filter(t => t.status === col);
+                return `
+                    <div class="kanban-column" ondragover="allowDropKanban(event)" ondragleave="leaveDropKanban(event)" ondrop="dropKanban(event, '${col}')">
+                        <h3>${labels[idx]}</h3>
+                        <div class="kanban-tasks">
+                            ${tasks.map(t => `
+                                <div class="kanban-task" draggable="true" ondragstart="dragKanban(event, ${t.id})">
+                                    <span>${t.text}</span>
+                                    <button class="icon-btn danger" onclick="deleteTask(${t.id})">✕</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function renderTasks() {
+            const tl = document.getElementById('tasksList');
+            if (state.tasks.length === 0) return tl.innerHTML = '<div class="empty-state">Sin tareas activas</div>';
+            tl.innerHTML = state.tasks.map(task => `
+                <div class="task-item">
+                    <label class="custom-checkbox">
+                        <input type="checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${task.id})">
+                        <span class="checkmark"></span>
+                        <span class="task-text">${task.text}</span>
+                    </label>
+                    <button class="icon-btn danger" onclick="deleteTask(${task.id})">✕</button>
+                </div>
+            `).join('');
+        }
+
+        function addTask(text) { state.tasks.push({ id: Date.now(), text, completed: false, status: 'todo' }); saveState(); renderTasks(); renderKanban(); }
+        window.toggleTask = (id) => { const t = state.tasks.find(x => x.id === id); if (t) { t.completed = !t.completed; t.status = t.completed ? 'done' : 'todo'; saveState(); renderTasks(); renderKanban(); } };
+        window.deleteTask = (id) => { state.tasks = state.tasks.filter(x => x.id !== id); saveState(); renderTasks(); renderKanban(); };
+
+        // --- HÁBITOS ---
+        function renderHabits() {
+            const hc = document.getElementById('habitsContainer');
+            if (state.habits.length === 0) return hc.innerHTML = '<div class="empty-state">Sin hábitos configurados</div>';
+            hc.innerHTML = state.habits.map(h => {
+                const today = new Date().toDateString(); const completedToday = h.lastCheck === today;
+                return `
+                    <div class="habit-card">
+                        <div class="habit-info">
+                            <span class="habit-icon">🔥</span>
+                            <div class="habit-details">
+                                <span class="habit-name">${h.name}</span>
+                                <span class="habit-meta">${h.streak} días racha • ${h.minutes} min</span>
+                            </div>
+                            <button class="icon-btn danger" onclick="deleteHabit(${h.id})">✕</button>
+                        </div>
+                        <button class="tech-btn ${completedToday ? 'success' : 'primary'}" onclick="completeHabit(${h.id})">
+                            ${completedToday ? '✓ Ciclo Diario Cumplido' : 'Marcar Completado'}
+                        </button>
+                    </div>`;
+            }).join('');
+        }
+
+        document.getElementById('addHabitForm').addEventListener('submit', (e) => {
+            e.preventDefault(); const n = document.getElementById('habitName').value.trim(); const m = parseInt(document.getElementById('habitMinutes').value);
+            if (n && m > 0) { state.habits.push({ id: Date.now(), name: n, minutes: m, streak: 0, completed: false, lastCheck: null }); saveState(); renderHabits(); document.getElementById('addHabitModal').classList.remove('active'); document.getElementById('addHabitForm').reset(); }
+        });
+        window.completeHabit = (id) => {
+            const today = new Date().toDateString(); const h = state.habits.find(x => x.id === id);
+            if (!h || h.lastCheck === today) return;
+            const prev = new Date(); prev.setDate(prev.getDate() - 1);
+            h.streak = (h.lastCheck === prev.toDateString()) ? h.streak + 1 : 1;
+            h.completed = true; h.lastCheck = today; saveState(); renderHabits();
+        };
+        window.deleteHabit = (id) => { showCustomConfirm('¿Eliminar hábito?', () => { state.habits = state.habits.filter(x => x.id !== id); saveState(); renderHabits(); }); };
+
+        // --- LIBROS ---
+        function renderBooks() {
+            const bc = document.getElementById('booksContainer');
+            if (state.books.length === 0) return bc.innerHTML = '<div class="empty-state">Biblioteca vacía. Inicializa un nuevo bloque de lectura.</div>';
+            bc.innerHTML = state.books.map(b => {
+                const progress = (b.pagesRead / b.totalPages) * 100; const rem = b.totalPages - b.pagesRead;
+                const days = Math.floor((new Date() - new Date(b.createdAt)) / (1000 * 60 * 60 * 24));
+                const avg = b.pagesRead / Math.max(days + 1, 1);
+                const est = avg > 0 ? Math.ceil(rem / avg) : '∞';
+                const estDate = new Date(); if (est !== '∞') estDate.setDate(estDate.getDate() + est);
+                return `
+                    <div class="book-card">
+                        <div class="book-row-1"><span class="book-title">${b.title}</span><button class="icon-btn danger" onclick="deleteBook(${b.id})">✕</button></div>
+                        <div class="book-row-2"><span class="pages-highlight">${rem}</span> páginas restantes</div>
+                        <div class="book-row-3">
+                            <div class="progress-container-full"><div class="progress-fill-bar" style="width: ${progress}%"></div><span class="progress-text-label">${Math.round(progress)}%</span></div>
+                            <input type="number" placeholder="+ Págs" min="0" id="pages-${b.id}" class="pags-input">
+                        </div>
+                        <div class="book-row-4"><span class="eta-badge">${est === '∞' ? 'ETA: Pendiente' : 'ETA: ' + estDate.toLocaleDateString('es-AR')}</span><button onclick="addPages(${b.id})" class="sync-btn">Sync</button></div>
+                    </div>`;
+            }).join('');
+        }
+
+        document.getElementById('addBookForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const t = document.getElementById('bookTitle').value.trim(); const tp = parseInt(document.getElementById('bookPages').value); const cp = parseInt(document.getElementById('bookCurrentPages').value) || 0;
+            if (t && tp > 0 && cp <= tp) { state.books.push({ id: Date.now(), title: t, totalPages: tp, pagesRead: cp, createdAt: new Date().toISOString() }); saveState(); renderBooks(); document.getElementById('addBookModal').classList.remove('active'); document.getElementById('addBookForm').reset(); }
+        });
+        window.addPages = (id) => {
+            const p = parseInt(document.getElementById(`pages-${id}`).value);
+            if (!isNaN(p) && p > 0) {
+                const b = state.books.find(x => x.id === id);
+                if (b) { b.pagesRead = Math.min(b.pagesRead + p, b.totalPages); if (b.pagesRead === b.totalPages) showCustomAlert('¡Objetivo completado! 🚀'); saveState(); renderBooks(); }
+            }
+        };
+        window.deleteBook = (id) => { showCustomConfirm('¿Eliminar libro?', () => { state.books = state.books.filter(x => x.id !== id); saveState(); renderBooks(); }); };
+
+        // --- TEMPLATES ---
+        function updateTemplateSelect() {
+            const s = document.getElementById('templateSelect'); s.innerHTML = '<option value="">Cargar template...</option>';
+            Object.keys(state.templates).forEach(name => s.innerHTML += `<option value="${name}">${name}</option>`);
+        }
+        document.getElementById('loadTemplateBtn').addEventListener('click', () => {
+            const val = document.getElementById('templateSelect').value;
+            if (val && state.templates[val]) { state.activities = JSON.parse(JSON.stringify(state.templates[val])); saveState(); initCalendar(); }
+        });
+        document.getElementById('saveTemplateForm').addEventListener('submit', (e) => {
+            e.preventDefault(); const name = document.getElementById('templateName').value.trim();
+            if (name) { state.templates[name] = JSON.parse(JSON.stringify(state.activities)); saveState(); updateTemplateSelect(); document.getElementById('saveTemplateModal').classList.remove('active'); document.getElementById('saveTemplateForm').reset(); }
+        });
+
+        // --- EVENTOS UI PRINCIPALES ---
+        document.getElementById('tasksForm').addEventListener('submit', (e) => { e.preventDefault(); const i = document.getElementById('taskInput'); if (i.value.trim()) { addTask(i.value.trim()); i.value = ''; } });
+        document.getElementById('listViewBtn').addEventListener('click', () => { document.getElementById('listViewBtn').classList.add('active'); document.getElementById('kanbanViewBtn').classList.remove('active'); document.getElementById('listView').style.display = 'block'; document.getElementById('kanbanView').style.display = 'none'; });
+        document.getElementById('kanbanViewBtn').addEventListener('click', () => { document.getElementById('kanbanViewBtn').classList.add('active'); document.getElementById('listViewBtn').classList.remove('active'); document.getElementById('listView').style.display = 'none'; document.getElementById('kanbanView').style.display = 'block'; renderKanban(); });
+
+        document.getElementById('addNodeBtn').addEventListener('click', openAddNodeModal);
+        document.getElementById('closeNodeModal').addEventListener('click', () => document.getElementById('addNodeModal').classList.remove('active'));
+        document.getElementById('addBookBtn').addEventListener('click', () => document.getElementById('addBookModal').classList.add('active'));
+        document.getElementById('closeBookModal').addEventListener('click', () => document.getElementById('addBookModal').classList.remove('active'));
+        document.getElementById('addHabitBtn').addEventListener('click', () => document.getElementById('addHabitModal').classList.add('active'));
+        document.getElementById('closeHabitModal').addEventListener('click', () => document.getElementById('addHabitModal').classList.remove('active'));
+        document.getElementById('saveTemplateBtn').addEventListener('click', () => document.getElementById('saveTemplateModal').classList.add('active'));
+        document.getElementById('closeSaveModal').addEventListener('click', () => document.getElementById('saveTemplateModal').classList.remove('active'));
+        
+        document.getElementById('exportBtn').addEventListener('click', exportBackup);
+        document.getElementById('importBtn').addEventListener('click', () => document.getElementById('importFile').click());
+        document.getElementById('importFile').addEventListener('change', (e) => { if (e.target.files[0]) importBackup(e.target.files[0]); });
+
+        document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', (e) => { if (e.target === m) m.classList.remove('active'); }));
+
+        // ==================== SPRINT DE EXÁMENES ====================
+        let examsState = { exams: [] };
+
+        function loadExamsState() {
+            const saved = localStorage.getItem('lifeTrackerExams');
+            if (saved) { examsState.exams = JSON.parse(saved); }
+        }
+
+        function saveExamsState() {
+            localStorage.setItem('lifeTrackerExams', JSON.stringify(examsState.exams));
+        }
+
+        function calculateDaysRemaining(examDate) {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const exam = new Date(examDate); exam.setHours(0, 0, 0, 0);
+            return Math.ceil((exam - today) / (1000 * 60 * 60 * 24));
+        }
+
+        function getRiskLevel(daysRemaining) {
+            if (daysRemaining > 7) return 'green';
+            if (daysRemaining > 3) return 'yellow';
+            if (daysRemaining > 0) return 'red';
+            return 'expired';
+        }
+
+        function calculateCountdown(examDate) {
+            const today = new Date(); const exam = new Date(examDate);
+            const diff = exam - today;
+            if (diff <= 0) return { days: 0, hours: 0, minutes: 0, expired: true };
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            return { days, hours, minutes, expired: false };
+        }
+
+        function openAddExamModal() {
+            document.getElementById('examModalTitle').textContent = 'Crear Nuevo Examen';
+            document.getElementById('editExamId').value = '';
+            document.getElementById('examForm').reset();
+            document.getElementById('addExamModal').classList.add('active');
+        }
+
+        function openEditExamModal(examId) {
+            const exam = examsState.exams.find(e => e.id === examId);
+            if (!exam) return;
+            document.getElementById('examModalTitle').textContent = 'Editar Examen';
+            document.getElementById('editExamId').value = exam.id;
+            document.getElementById('examSubject').value = exam.subject;
+            document.getElementById('examType').value = exam.type;
+            document.getElementById('examDate').value = exam.date;
+            document.getElementById('examTime').value = exam.time;
+            document.getElementById('addExamModal').classList.add('active');
+        }
+
+        function closeAddExamModal() {
+            document.getElementById('addExamModal').classList.remove('active');
+            document.getElementById('examForm').reset();
+        }
+
+        document.getElementById('examForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const editId = document.getElementById('editExamId').value;
+            const subject = document.getElementById('examSubject').value;
+            const type = document.getElementById('examType').value;
+            const date = document.getElementById('examDate').value;
+            const time = document.getElementById('examTime').value || '09:00';
+
+            if (editId) {
+                const exam = examsState.exams.find(e => e.id == editId);
+                if (exam) {
+                    exam.subject = subject;
+                    exam.type = type;
+                    exam.date = date;
+                    exam.time = time;
+                }
+            } else {
+                const exam = {
+                    id: Date.now(),
+                    subject, type, date, time,
+                    topics: [{ id: 1, name: 'Tema 1', status: 'unreview' }],
+                    tasks: [],
+                    spacedRepetition: { '24h': false, '3d': false, '7d': false }
+                };
+                examsState.exams.push(exam);
+            }
+
+            saveExamsState();
+            closeAddExamModal();
+            renderExams();
+        });
+
+        function renderExams() {
+            const container = document.getElementById('examsGrid');
+            if (examsState.exams.length === 0) {
+                container.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">📚 No hay exámenes aún. ¡Crea uno para comenzar!</div>`;
+                return;
+            }
+
+            container.innerHTML = examsState.exams.map(exam => {
+                const daysRemaining = calculateDaysRemaining(exam.date);
+                const riskLevel = getRiskLevel(daysRemaining);
+                const countdown = calculateCountdown(exam.date);
+                const masteredTopics = exam.topics.filter(t => t.status === 'mastered').length;
+                const totalTopics = exam.topics.length;
+                const progressPercentage = totalTopics > 0 ? Math.round((masteredTopics / totalTopics) * 100) : 0;
+
+                return `
+                    <div class="exam-card risk-${riskLevel}">
+                        <div class="exam-header">
+                            <div class="exam-title">
+                                <div class="exam-subject">${exam.subject}</div>
+                                <div class="exam-type">${exam.type}</div>
+                            </div>
+                            <div class="exam-indicator">
+                                <div class="risk-dot ${riskLevel}"></div>
+                                <span style="font-size: 0.8em; color: var(--text-secondary);">${daysRemaining} días</span>
+                            </div>
+                        </div>
+
+                        <div class="exam-countdown">
+                            <div class="exam-countdown-unit"><div class="countdown-value">${countdown.days}</div><div class="countdown-label">Días</div></div>
+                            <div style="display: flex; align-items: center; color: var(--text-secondary);">:</div>
+                            <div class="exam-countdown-unit"><div class="countdown-value">${countdown.hours}</div><div class="countdown-label">Hrs</div></div>
+                            <div style="display: flex; align-items: center; color: var(--text-secondary);">:</div>
+                            <div class="exam-countdown-unit"><div class="countdown-value">${countdown.minutes}</div><div class="countdown-label">Min</div></div>
+                        </div>
+
+                        <div class="exam-progress">
+                            <div class="progress-label">
+                                <span class="progress-label-text">Temas Dominados</span>
+                                <span class="progress-percentage">${masteredTopics}/${totalTopics}</span>
+                            </div>
+                            <div class="progress-bar"><div class="progress-fill" style="width: ${progressPercentage}%"></div></div>
+                        </div>
+
+                        <div class="syllabus-matrix">
+                            <div class="syllabus-title">
+                                <span>📚 Matriz de Temario</span>
+                                <button class="tech-btn primary" style="padding: 2px 6px; font-size: 0.7em;" onclick="addTopic(${exam.id})">+ Tema</button>
+                            </div>
+                            ${exam.topics.map(topic => `
+                                <div class="topic-row">
+                                    <input type="text" class="topic-name" value="${topic.name}" onblur="updateTopicName(${exam.id}, ${topic.id}, this.value)">
+                                    <button class="topic-status-btn unreview ${topic.status === 'unreview' ? 'mastered' : ''}" onclick="changeTopicStatus(${exam.id}, ${topic.id}, 'unreview')" title="Sin Revisar">🔴</button>
+                                    <button class="topic-status-btn practice ${topic.status === 'practice' ? 'mastered' : ''}" onclick="changeTopicStatus(${exam.id}, ${topic.id}, 'practice')" title="En Práctica">🟡</button>
+                                    <button class="topic-status-btn mastered ${topic.status === 'mastered' ? 'mastered' : ''}" onclick="changeTopicStatus(${exam.id}, ${topic.id}, 'mastered')" title="Dominado">✓</button>
+                                    <button class="icon-btn danger" style="font-size: 0.9em;" onclick="deleteTopic(${exam.id}, ${topic.id})">✕</button>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="exam-tasks">
+                            <div style="font-size: 0.9em; font-weight: 600; color: var(--neon-blue); margin-bottom: 10px;">📌 Tareas del Examen</div>
+                            <div class="task-input-row">
+                                <input type="text" placeholder="Agregar tarea..." id="taskInput${exam.id}">
+                                <button class="tech-btn primary" style="padding: 8px 12px;" onclick="addExamTask(${exam.id})">+</button>
+                            </div>
+                            <div class="task-list">
+                                ${exam.tasks.map((task, idx) => `
+                                    <div class="task-item-exam ${task.completed ? 'completed' : ''}">
+                                        <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleExamTask(${exam.id}, ${idx})">
+                                        <span class="task-text">${task.text}</span>
+                                        <button class="task-delete" onclick="deleteExamTask(${exam.id}, ${idx})">✕</button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="spaced-repetition">
+                            <div class="repetition-title">🔄 Repaso Espaciado</div>
+                            <div class="repetition-schedule">
+                                <div class="repetition-marker ${exam.spacedRepetition['24h'] ? 'done' : 'pending'}" onclick="toggleRepetition(${exam.id}, '24h')">24 hrs</div>
+                                <div class="repetition-marker ${exam.spacedRepetition['3d'] ? 'done' : 'pending'}" onclick="toggleRepetition(${exam.id}, '3d')">3 días</div>
+                                <div class="repetition-marker ${exam.spacedRepetition['7d'] ? 'done' : 'pending'}" onclick="toggleRepetition(${exam.id}, '7d')">7 días</div>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, 0.05); font-size: 0.8em; color: var(--text-secondary);">
+                            <span>📅 ${new Date(exam.date + 'T00:00:00').toLocaleDateString('es-AR')} ${exam.time}</span>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="tech-btn primary" style="padding: 4px 8px; font-size: 0.75em;" onclick="openEditExamModal(${exam.id})">Editar</button>
+                                <button class="tech-btn danger" style="padding: 4px 8px; font-size: 0.75em;" onclick="deleteExam(${exam.id})">Eliminar</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.addTopic = function(examId) {
+            const exam = examsState.exams.find(e => e.id === examId);
+            if (exam) {
+                exam.topics.push({ id: Date.now(), name: 'Nuevo Tema', status: 'unreview' });
+                saveExamsState(); renderExams();
+            }
+        };
+        window.updateTopicName = function(examId, topicId, newName) {
+            const exam = examsState.exams.find(e => e.id === examId);
+            if (exam) {
+                const topic = exam.topics.find(t => t.id === topicId);
+                if (topic) { topic.name = newName.trim() || 'Tema sin nombre'; saveExamsState(); }
+            }
+        };
+        window.deleteTopic = function(examId, topicId) {
+            const exam = examsState.exams.find(e => e.id === examId);
+            if (exam) {
+                exam.topics = exam.topics.filter(t => t.id !== topicId);
+                saveExamsState(); renderExams();
+            }
+        };
+        window.changeTopicStatus = function(examId, topicId, newStatus) {
+            const exam = examsState.exams.find(e => e.id === examId);
+            if (exam) {
+                const topic = exam.topics.find(t => t.id === topicId);
+                if (topic) { topic.status = newStatus; saveExamsState(); renderExams(); }
+            }
+        };
+
+        window.addExamTask = function(examId) {
+            const input = document.getElementById(`taskInput${examId}`);
+            const text = input.value.trim();
+            if (text) {
+                const exam = examsState.exams.find(e => e.id === examId);
+                if (exam) {
+                    exam.tasks.push({ text, completed: false });
+                    input.value = '';
+                    saveExamsState(); renderExams();
+                }
+            }
+        };
+        window.toggleExamTask = function(examId, taskIdx) {
+            const exam = examsState.exams.find(e => e.id === examId);
+            if (exam && exam.tasks[taskIdx]) {
+                exam.tasks[taskIdx].completed = !exam.tasks[taskIdx].completed;
+                saveExamsState(); renderExams();
+            }
+        };
+        window.deleteExamTask = function(examId, taskIdx) {
+            const exam = examsState.exams.find(e => e.id === examId);
+            if (exam) {
+                exam.tasks.splice(taskIdx, 1);
+                saveExamsState(); renderExams();
+            }
+        };
+
+        window.toggleRepetition = function(examId, period) {
+            const exam = examsState.exams.find(e => e.id === examId);
+            if (exam) {
+                exam.spacedRepetition[period] = !exam.spacedRepetition[period];
+                saveExamsState(); renderExams();
+            }
+        };
+
+        window.deleteExam = function(examId) {
+            showCustomConfirm('¿Estás seguro de que deseas eliminar este examen?', () => {
+                examsState.exams = examsState.exams.filter(e => e.id !== examId);
+                saveExamsState(); renderExams();
+            });
+        };
+
+        document.getElementById('addExamModal').addEventListener('click', function(e) {
+            if (e.target === this) closeAddExamModal();
+        });
+
+        setInterval(renderExams, 60000);
+
+        // --- INIT ---
+        loadState(); loadExamsState(); initCalendar(); initDraggableBlocks(); renderBooks(); renderTasks(); renderHabits(); updateTemplateSelect(); updateTimeIndicator(); renderExams();
+    </script>
+</body>
+</html>
